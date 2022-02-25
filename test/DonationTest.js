@@ -30,6 +30,7 @@ describe("Donation", function () {
     it("getDonatorsTest", async function () {
 
         await donation.connect(addr1).gatherDonation({ value: ethers.utils.parseEther("0.1") });
+        await donation.connect(addr1).gatherDonation({ value: ethers.utils.parseEther("0.1") });
         await donation.connect(addr2).gatherDonation({ value: ethers.utils.parseEther("0.1") });
 
         const donators = await donation.getDonators();
