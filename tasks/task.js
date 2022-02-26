@@ -2,7 +2,7 @@ task("gatherDonation", "Gather Donation")
     .addParam("contract", "The donation address")
     .addParam("amount", "donation amount")
     .setAction(async (taskArgs, hre) => {
-        const amount = decimalToEther(taskArgs.amount);
+        const amount = hre.ethers.utils.parseEther(taskArgs.amount);
         const contract = await hre.ethers.getContractAt("Donation", taskArgs.contract);
         console.log(await contract.gatherDonation({value: amount}));
     });
@@ -11,14 +11,9 @@ task("gatherDonation", "Gather Donation")
 task("getDonators", "find all donators in contract")
     .addParam("contract", "The donation address")
     .setAction(async (taskArgs, hre) => {
-        // const contractAddress = web3.utils.toChecksumAddress(taskArgs.contract);
-        // let contract = new web3.eth.Contract(abi, contractAddress);
-        // console.log(await contract.methods.getDonators().call());
-
         const contract = await hre.ethers.getContractAt("Donation", taskArgs.contract);
         const result = await contract.getDonators();
-
-        console.log("result = " + result);
+        console.log("result: " + result);
     });
 
 task("getDonationAmount", "get donation amount from address")
@@ -26,7 +21,8 @@ task("getDonationAmount", "get donation amount from address")
     .addParam("donator", "Donator address")
     .setAction(async (taskArgs, hre) => {
         const contract = await hre.ethers.getContractAt("Donation", taskArgs.contract);
-        console.log(await contract.getDonationAmount(taskArgs.donator));
+        const result = await contract.getDonationAmount(taskArgs.donator);
+        console.log(hre.ethers.utils.formatEther(result));
     });
 
 task("transfer", "transfer tokens to another address")
@@ -34,14 +30,15 @@ task("transfer", "transfer tokens to another address")
     .addParam("to", "Output address")
     .addParam("amount", "Output amount")
     .setAction(async (taskArgs, hre) => {
-        const to = taskArgs.to;
-
-        const amount = decimalToEther(taskArgs.amount);
-        console.log("amount = " + amount)
+        const amount = hre.ethers.utils.parseEther(taskArgs.amount);
         const contract = await hre.ethers.getContractAt("Donation", taskArgs.contract);
-        console.log(await contract.transfer(to, amount));
+        console.log(await contract.transfer(taskArgs.to, amount));
     });
 
-function decimalToEther(decimal) {
-    return Math.round(decimal * Math.pow(10, 18));
-}
+task("balance", "get contract balance")
+    .addParam("contract", "The donation address")
+    .setAction(async (taskArgs, hre) => {
+        const contract = await hre.ethers.getContractAt("Donation", taskArgs.contract);
+        const result = await contract.getBalance();
+        console.log(hre.ethers.utils.formatEther(result));
+    });
